@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["cosmtrek@gmail.com"]
   spec.summary       = %q{A local music player based on Netease music.}
   spec.description   = %q{}
-  spec.homepage      = ""
+  spec.homepage      = "https://github.com/cosmtrek/mdisc"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")
