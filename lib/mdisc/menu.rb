@@ -24,6 +24,8 @@ SHORTCUT =  [
 ]
 
 class Menu
+  attr_accessor :player, :ui, :netease, :screen
+
   def initialize
     self.player = Player.new
     self.ui = Ui.new
@@ -35,7 +37,7 @@ class Menu
     @offset = 0
     @index = 0
     @present_songs = []
-    @step = 10
+    @step = 20
     @stack = []
     @userid = nil
     @username = nil
@@ -61,7 +63,7 @@ class Menu
       idx = index = @index
       step = @step
       stack = @stack
-      key = @screen.getch
+      key = screen.getch
       screen.refresh
 
       case key

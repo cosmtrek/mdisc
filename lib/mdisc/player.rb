@@ -1,6 +1,8 @@
 require 'open4'
 
 class Player
+  attr_accessor :ui
+
   def initialize
     self.ui = Ui.new
     @datatype = 'songs'
