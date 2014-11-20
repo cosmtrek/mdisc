@@ -1,6 +1,8 @@
 require 'open4'
 
 class Player
+  WAIT_TIME = 0.5
+
   attr_accessor :ui
 
   def initialize
@@ -12,7 +14,6 @@ class Player
     @pause_flag = false
     @songs = []
     @idx = 0
-    @wait = 0.5
     @carousel = ->(left, right, x){x < left ? right : (x > right ? left : x)}
   end
 
@@ -48,7 +49,7 @@ class Player
 
   def switch
     stop
-    sleep @wait
+    sleep WAIT_TIME
     recall
   end
 
@@ -83,7 +84,7 @@ class Player
 
   def next
     stop
-    sleep @wait
+    sleep WAIT_TIME
 
     @idx = @carousel[0, @songs.size - 1, @idx + 1]
     recall
@@ -91,7 +92,7 @@ class Player
 
   def prev
     stop
-    sleep @wait
+    sleep WAIT_TIME
 
     @idx = @carousel[0, @songs.size - 1, @idx - 1]
     recall

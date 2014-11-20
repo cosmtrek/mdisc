@@ -1,5 +1,5 @@
-require "mdisc/version"
-require File.expand_path('../mdisc/menu', __FILE__)
-require File.expand_path('../mdisc/api', __FILE__)
-require File.expand_path('../mdisc/player', __FILE__)
-require File.expand_path('../mdisc/ui', __FILE__)
+require_relative 'mdisc/version'
+require_relative 'mdisc/menu'
+require_relative 'mdisc/api'
+require_relative 'mdisc/player'
+require_relative 'mdisc/ui'

@@ -1,5 +1,7 @@
 # Mdisc
 
+![Mdisc](http://cl.ly/Y6Qz)
+
 Mdisc, built with Ruby 2.1, is a command line music player that wirelessly plugs in Netease music(http://music.163.com).
 
 ## Installation
@@ -17,7 +19,7 @@ After finishing the installation, open your terminal and input `mdisc`. Music's 
 
 Sorry, I do not test Mdisc in Linux. If you try it in Linux and catch some problem, please issue me. Thanks!
 
-## Shortcuts
+## Shortcut
 
 | Key | Explanation          | 中文释义              |
 | :---|:---------------------|:---------------------|
@@ -45,13 +47,13 @@ Sorry, I do not test Mdisc in Linux. If you try it in Linux and catch some probl
 
 Mdisc will make a new directory `~/.mdisc` and touch a file to store user's data for the first time.
 
-## Big Thanks
+## Thanks
 
 [NetEase-MusicBox](https://github.com/bluetomlee/NetEase-MusicBox)
 
 [网易云音乐API分析](https://github.com/yanunon/NeteaseCloudMusic/wiki/网易云音乐API分析)
 
-Their great projects inspire me. Thanks!
+Their great projects inspired me. Thanks!
 
 ## License
 

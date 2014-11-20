@@ -24,6 +24,8 @@ SHORTCUT =  [
 ]
 
 class Menu
+  WAIT_TIME = 0.1
+
   attr_accessor :player, :ui, :netease, :screen
 
   def initialize
@@ -45,7 +47,6 @@ class Menu
     @playlists = []
     @account = {}
 
-    @wait = 0.1
     @carousel = ->(left, right, x){x < left ? right : (x > right ? left : x)}
 
     read_data
@@ -92,7 +93,8 @@ class Menu
         @offset = @offset + step
         @index = (index + step).divmod(step)[0] * step
 
-      # Forward
+      # If highlighted item is a menu or playlists, just enter it.
+      # If highlighted item is a song or an dj channel, just play it.
       when 'l'
         next if @datatype == 'help'
         if @datatype == 'songs' || @datatype == 'djchannels'
@@ -118,17 +120,17 @@ class Menu
       # Next song
       when ']'
         player.next
-        sleep @wait
+        sleep WAIT_TIME
 
       # Previous song
       when '['
         player.prev
-        sleep @wait
+        sleep WAIT_TIME
 
       # Play or pause a song.
       when ' '
         player.play(datatype, datalist, idx)
-        sleep @wait
+        sleep WAIT_TIME
 
       # Load present playlist.
       when 'p'
@@ -167,7 +169,7 @@ class Menu
         @offset = 0
         @index = 0
 
-      # Load favorite albums
+      # Load favorite albums.
       when 'a'
         @stack.push([datatype, title, datalist, offset, index])
         @datatype = 'albums'
@@ -176,7 +178,7 @@ class Menu
         @offset = 0
         @index = 0
 
-      # Load favorite dj channels
+      # Load favorite dj channels.
       when 'z'
         @stack.push([datatype, title, datalist, offset, index])
         @datatype = 'djchannels'
@@ -192,14 +194,13 @@ class Menu
           @index = @carousel[@offset, [datalist.size, offset+step].min - 1, idx]
         end
 
-      # Main menu.
+      # Main menu
       when 'm'
-        if datatype != 'main'
-          @stack.push([datatype, title, datalist, offset, index])
-          @datatype, @title, @datalist = @stack[0][0], @stack[0][1], @stack[0][2]
-          @offset = 0
-          @index = 0
-        end
+        next if datatype == 'main'
+        @stack.push([datatype, title, datalist, offset, index])
+        @datatype, @title, @datalist = @stack[0][0], @stack[0][1], @stack[0][2]
+        @offset = 0
+        @index = 0
 
       end
 
@@ -212,7 +213,6 @@ class Menu
   end
 
   def dispatch_enter(idx)
-    # netease = @netease
     datatype = @datatype
     title = @title
     datalist = @datalist
@@ -251,10 +251,7 @@ class Menu
   end
 
   def choice_channel(idx)
-    # netease = @netease
-
     case idx
-
     # Top
     when 0
       songs = netease.top_songlist
@@ -286,18 +283,7 @@ class Menu
     # My playlist
     when 4
       # Require user's account before fetching his playlists.
-      if !@userid
-        user_info = netease.login(@account[0], @account[1]) unless @account.empty?
-
-        if @account == {} || user_info['code'] != 200
-          data = ui.build_login
-          return if data == -1
-          user_info, @account = data[0], data[1]
-        end
-
-        @username = user_info['profile']['nickname']
-        @userid = user_info['account']['id']
-      end
+      check_user_id
 
       # Fetch this user's all playlists while he logs in successfully.
       my_playlist = netease.user_playlists(@userid)
@@ -311,7 +297,7 @@ class Menu
       @title += ' > DJ 节目'
       @datalist = netease.djchannels
 
-    # Favorite things.
+    # Favorite things
     when 6
       favorite
 
@@ -331,7 +317,6 @@ class Menu
   end
 
   def favorite
-    # ui = @ui
     x = ui.build_favorite_menu
 
     if (1..4).include? x.to_i
@@ -366,7 +351,6 @@ class Menu
   end
 
   def search
-    # ui = @ui
     x = ui.build_search_menu
 
     if (1..4).include? x.to_i
@@ -401,13 +385,17 @@ class Menu
 
   private
 
-  def check_mdisc_dir
-    Dir.mkdir File.expand_path("~/.mdisc") unless Dir.exist? File.expand_path("~/.mdisc")
+  def check_dir
+    dir = "#{ENV['HOME']}/.mdisc"
+    unless Dir.exist? dir
+      Dir.mkdir dir
+    end
   end
 
   def read_data
-    check_mdisc_dir
-    user_file = File.expand_path("~/.mdisc/flavor.json")
+    check_dir
+
+    user_file = "#{ENV['HOME']}/.mdisc/flavor.json"
     return unless File.exist? user_file
 
     data = JSON.parse(File.read(user_file))
@@ -419,7 +407,10 @@ class Menu
   end
 
   def write_data
-    user_file = File.expand_path("~/.mdisc/flavor.json")
+    check_dir
+
+    user_file = "#{ENV['HOME']}/.mdisc/flavor.json"
+
     data = {
       :account => @account,
       :collection => @collection,
@@ -430,6 +421,21 @@ class Menu
 
     File.open(user_file, 'w') do |f|
       f.write(JSON.generate(data))
+    end
+  end
+
+  def check_user_id
+    if !@userid
+      user_info = netease.login(@account[0], @account[1]) unless @account.empty?
+
+      if @account == {} || user_info['code'] != 200
+        data = ui.build_login
+        return if data == -1
+        user_info, @account = data[0], data[1]
+      end
+
+      @username = user_info['profile']['nickname']
+      @userid = user_info['account']['id']
     end
   end
 end

@@ -47,7 +47,7 @@ class Ui
     Curses.init_screen
     Curses.start_color
     Curses.cbreak
-    Curses.stdscr.keypad(true)
+    Curses.stdscr.keypad true
     Curses.init_pair(1, Curses::COLOR_BLUE, Curses::COLOR_BLACK)
     Curses.init_pair(2, Curses::COLOR_CYAN, Curses::COLOR_BLACK)
     Curses.init_pair(3, Curses::COLOR_RED, Curses::COLOR_BLACK)
@@ -55,7 +55,6 @@ class Ui
 
     # height, width, top, left
     self.screen = Curses::Window.new(SCREEN_HEIGHT, SCREEN_WIDTH, 0, 0)
-
     self.netease = NetEase.new
   end
 
@@ -88,9 +87,11 @@ class Ui
     if datalist.size == 0
       putstr(screen, PLAYER_CONTENT_Y, PLAYER_X, '没有内容 Orz')
     else
+      entries = offset...[datalist.length, offset + step].min
+
       case datatype
       when 'main'
-        (offset...[datalist.length, offset + step].min).each do |i|
+        entries.each do |i|
           if i == index
             info = "♩ #{i}. #{datalist[i]}"
             putstr(screen, i-offset+PLAYER_CONTENT_Y, PLAYER_POINTER_X, info, Curses.color_pair(2))
@@ -103,7 +104,7 @@ class Ui
         putstr(screen, PLAYER_INFO_Y, PLAYER_X, 'Crafted with ❤ by cosmtrek', Curses.color_pair(3))
 
       when 'songs'
-        (offset...[datalist.length, offset + step].min).each do |i|
+        entries.each do |i|
           sn = pretty_format(datalist[i]['song_name'], 0, 32)
           at = pretty_format(datalist[i]['artist'], 0, 28)
 
@@ -117,7 +118,7 @@ class Ui
         end
 
       when 'artists'
-        (offset...[datalist.length, offset + step].min).each do |i|
+        entries.each do |i|
           an = pretty_format(datalist[i]['artists_name'], 0, 32)
           if i == index
             info = "♩ #{i}. #{an}"
@@ -129,7 +130,7 @@ class Ui
         end
 
       when 'albums'
-        (offset...[datalist.length, offset + step].min).each do |i|
+        entries.each do |i|
           al = pretty_format(datalist[i]['albums_name'], 0, 32)
           an = pretty_format(datalist[i]['artists_name'], 0, 28)
           if i == index
@@ -142,7 +143,7 @@ class Ui
         end
 
       when 'playlists'
-        (offset...[datalist.length, offset + step].min).each do |i|
+        entries.each do |i|
           pn = pretty_format(datalist[i]['playlists_name'], 0, 32);
           cn = pretty_format(datalist[i]['creator_name'], 0, 28);
           if i == index
@@ -155,7 +156,7 @@ class Ui
         end
 
       when 'djchannels'
-        (offset...[datalist.length, offset + step].min).each do |i|
+        entries.each do |i|
           sn = pretty_format(datalist[i][0]['song_name'], 0, 32)
           if i == index
             info = "♩ #{i}. #{sn}"
@@ -167,7 +168,7 @@ class Ui
         end
 
       when 'help'
-        (offset...[datalist.length, offset + step].min).each do |i|
+        entries.each do |i|
           info = "#{i}. #{datalist[i][0]} #{datalist[i][1]} #{datalist[i][2]}"
           putstr(screen, i-offset+PLAYER_CONTENT_Y, PLAYER_X, info)
         end
@@ -219,6 +220,9 @@ class Ui
       end
 
     end
+
+    # If no results, then just return empty array.
+    []
   end
 
   def build_favorite_menu
@@ -284,16 +288,16 @@ class Ui
   private
 
   def putstr(screen, y, x, string, color = Curses.color_pair(0))
-   screen.setpos(y, x)
-   screen.clrtoeol
-   screen.attrset(color)
-   screen.addstr(string)
+    screen.setpos(y, x)
+    screen.clrtoeol
+    screen.attrset(color)
+    screen.addstr(string)
   end
 
   def clear_to_bottom(screen, top, bottom)
     (top..bottom).each do |i|
-     screen.setpos(i, 0)
-     screen.clrtoeol
+      screen.setpos(i, 0)
+      screen.clrtoeol
     end
   end
 
