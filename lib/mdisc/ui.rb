@@ -44,133 +44,86 @@ class Ui
   PLAYER_POINTER_X     = PLAYER_X - 3
 
   def initialize
-    Curses.init_screen
-    Curses.start_color
-    Curses.cbreak
-    Curses.stdscr.keypad true
-    Curses.init_pair(1, Curses::COLOR_BLUE, Curses::COLOR_BLACK)
-    Curses.init_pair(2, Curses::COLOR_CYAN, Curses::COLOR_BLACK)
-    Curses.init_pair(3, Curses::COLOR_RED, Curses::COLOR_BLACK)
-    Curses.init_pair(4, Curses::COLOR_MAGENTA, Curses::COLOR_BLACK)
-
-    # height, width, top, left
-    self.screen = Curses::Window.new(SCREEN_HEIGHT, SCREEN_WIDTH, 0, 0)
+    self.screen = Screen.new(SCREEN_HEIGHT, SCREEN_WIDTH)
     self.netease = NetEase.new
   end
 
   def build_playinfo(song_name, artist, pause = false)
     if pause
-      putstr(screen, PLAYER_STATUS_Y, PLAYER_NOTE_X, '■', Curses.color_pair(3))
+      screen.line(PLAYER_STATUS_Y, PLAYER_NOTE_X, '■', 3)
     else
-      putstr(screen, PLAYER_STATUS_Y, PLAYER_NOTE_X, '▶', Curses.color_pair(3))
+      screen.line(PLAYER_STATUS_Y, PLAYER_NOTE_X, '▶', 3)
     end
 
-    sn = pretty_format(song_name, 0, 32)
-    at = pretty_format(artist, 0, 28)
+    sn = pretty(song_name, 0, 32)
+    at = pretty(artist, 0, 28)
     info = "#{sn} - #{at}"
-    putstr(screen, PLAYER_STATUS_Y, PLAYER_X, info, Curses.color_pair(4))
+    screen.line(PLAYER_STATUS_Y, PLAYER_X, info, 4)
     screen.refresh
   end
 
   def build_loading
-    clear_to_bottom(screen, PLAYER_CONTENT_Y,SCREEN_HEIGHT)
-    putstr(screen, PLAYER_CONTENT_Y, PLAYER_X, 'loading...', Curses.color_pair(1))
+    screen.clear(PLAYER_CONTENT_Y, SCREEN_HEIGHT)
+    screen.line(PLAYER_CONTENT_Y, PLAYER_X, 'loading...', 1)
     screen.refresh
   end
 
   def build_menu(datatype, title, datalist, offset, index, step)
-    title = pretty_format(title, 0, 52)
+    title = pretty(title, 0, 52)
 
-    clear_to_bottom(screen, PLAYER_CONTENT_Y,SCREEN_HEIGHT)
-    putstr(screen, PLAYER_TITLE_Y, PLAYER_X, title, Curses.color_pair(1))
+    screen.clear(PLAYER_CONTENT_Y, SCREEN_HEIGHT)
+    screen.line(PLAYER_TITLE_Y, PLAYER_X, title, 1)
 
     if datalist.size == 0
-      putstr(screen, PLAYER_CONTENT_Y, PLAYER_X, '没有内容 Orz')
+      screen.line(PLAYER_CONTENT_Y, PLAYER_X, '没有内容 Orz')
     else
       entries = offset...[datalist.length, offset + step].min
 
       case datatype
       when 'main'
-        entries.each do |i|
-          if i == index
-            info = "♩ #{i}. #{datalist[i]}"
-            putstr(screen, i-offset+PLAYER_CONTENT_Y, PLAYER_POINTER_X, info, Curses.color_pair(2))
-          else
-            info = "#{i}. #{datalist[i]}"
-            putstr(screen, i-offset+PLAYER_CONTENT_Y, PLAYER_X, info)
-          end
+        show(entries, index, offset, datalist) do |i, datalist|
+          "#{i}. #{datalist[i]}"
         end
 
-        putstr(screen, PLAYER_INFO_Y, PLAYER_X, 'Crafted with ❤ by cosmtrek', Curses.color_pair(3))
+        screen.line(PLAYER_INFO_Y, PLAYER_X, 'Crafted with ❤ by cosmtrek', 3)
 
       when 'songs'
-        entries.each do |i|
-          sn = pretty_format(datalist[i]['song_name'], 0, 32)
-          at = pretty_format(datalist[i]['artist'], 0, 28)
-
-          if i == index
-            info = "♩ #{i}. #{sn} - #{at}"
-            putstr(screen, i-offset+PLAYER_CONTENT_Y, PLAYER_POINTER_X, info, Curses.color_pair(2))
-          else
-            info = "#{i}. #{sn} - #{at}"
-            putstr(screen, i-offset+PLAYER_CONTENT_Y, PLAYER_X, info)
-          end
+        show(entries, index, offset, datalist) do |i, datalist|
+          sn = pretty(datalist[i]['song_name'], 0, 32)
+          at = pretty(datalist[i]['artist'], 0, 28)
+          "#{i}. #{sn} - #{at}"
         end
 
       when 'artists'
-        entries.each do |i|
-          an = pretty_format(datalist[i]['artists_name'], 0, 32)
-          if i == index
-            info = "♩ #{i}. #{an}"
-            putstr(screen, i-offset+PLAYER_CONTENT_Y, PLAYER_POINTER_X, info, Curses.color_pair(2))
-          else
-            info = "#{i}. #{an}"
-            putstr(screen, i-offset+PLAYER_CONTENT_Y, PLAYER_X, info)
-          end
+        show(entries, index, offset, datalist) do |i, datalist|
+          an = pretty(datalist[i]['artists_name'], 0, 32)
+          "#{i}. #{an}"
         end
 
       when 'albums'
-        entries.each do |i|
-          al = pretty_format(datalist[i]['albums_name'], 0, 32)
-          an = pretty_format(datalist[i]['artists_name'], 0, 28)
-          if i == index
-            info = "♩ #{i}. #{al} - #{an}"
-            putstr(screen, i-offset+PLAYER_CONTENT_Y, PLAYER_POINTER_X, info, Curses.color_pair(2))
-          else
-            info = "#{i}. #{al} - #{an}"
-            putstr(screen, i-offset+PLAYER_CONTENT_Y, PLAYER_X, info)
-          end
+        show(entries, index, offset, datalist) do |i, datalist|
+          al = pretty(datalist[i]['albums_name'], 0, 32)
+          an = pretty(datalist[i]['artists_name'], 0, 28)
+          "#{i}. #{al} - #{an}"
         end
 
       when 'playlists'
-        entries.each do |i|
-          pn = pretty_format(datalist[i]['playlists_name'], 0, 32);
-          cn = pretty_format(datalist[i]['creator_name'], 0, 28);
-          if i == index
-            info = "♩ #{i}. #{pn} - #{cn}"
-            putstr(screen, i-offset+PLAYER_CONTENT_Y, PLAYER_POINTER_X, info, Curses.color_pair(2))
-          else
-            info = "#{i}. #{pn} - #{cn}"
-            putstr(screen, i-offset+PLAYER_CONTENT_Y, PLAYER_X, info)
-          end
+        show(entries, index, offset, datalist) do |i, datalist|
+          pn = pretty(datalist[i]['playlists_name'], 0, 32);
+          cn = pretty(datalist[i]['creator_name'], 0, 28);
+          "#{i}. #{pn} - #{cn}"
         end
 
       when 'djchannels'
-        entries.each do |i|
-          sn = pretty_format(datalist[i][0]['song_name'], 0, 32)
-          if i == index
-            info = "♩ #{i}. #{sn}"
-            putstr(screen, i-offset+PLAYER_CONTENT_Y, PLAYER_POINTER_X, info, Curses.color_pair(2))
-          else
-            info = "#{i}. #{sn}"
-            putstr(screen, i-offset+PLAYER_CONTENT_Y, PLAYER_X, info)
-          end
+        show(entries, index, offset, datalist) do |i, datalist|
+          sn = pretty(datalist[i][0]['song_name'], 0, 32)
+          "#{i}. #{sn}"
         end
 
       when 'help'
         entries.each do |i|
           info = "#{i}. #{datalist[i][0]} #{datalist[i][1]} #{datalist[i][2]}"
-          putstr(screen, i-offset+PLAYER_CONTENT_Y, PLAYER_X, info)
+          screen.line(i-offset+PLAYER_CONTENT_Y, PLAYER_X, info)
         end
       end
     end
@@ -226,25 +179,25 @@ class Ui
   end
 
   def build_favorite_menu
-    clear_to_bottom(screen, PLAYER_CONTENT_Y,SCREEN_HEIGHT)
-    putstr(screen, PLAYER_CONTENT_Y, PLAYER_X, '选择收藏条目类型：', Curses.color_pair(1))
-    putstr(screen, PLAYER_CONTENT_Y + 1, PLAYER_X, '1 - 歌曲')
-    putstr(screen, PLAYER_CONTENT_Y + 2, PLAYER_X, '2 - 精选歌单')
-    putstr(screen, PLAYER_CONTENT_Y + 3, PLAYER_X, '3 - 专辑')
-    putstr(screen, PLAYER_CONTENT_Y + 4, PLAYER_X, '4 - DJ 节目')
-    putstr(screen, PLAYER_CONTENT_Y + 6, PLAYER_X, '请键入对应数字：', Curses.color_pair(2))
+    screen.clear(screen, PLAYER_CONTENT_Y,SCREEN_HEIGHT)
+    screen.line(PLAYER_CONTENT_Y, PLAYER_X, '选择收藏条目类型：', 1)
+    screen.line(PLAYER_CONTENT_Y + 1, PLAYER_X, '1 - 歌曲')
+    screen.line(PLAYER_CONTENT_Y + 2, PLAYER_X, '2 - 精选歌单')
+    screen.line(PLAYER_CONTENT_Y + 3, PLAYER_X, '3 - 专辑')
+    screen.line(PLAYER_CONTENT_Y + 4, PLAYER_X, '4 - DJ 节目')
+    screen.line(PLAYER_CONTENT_Y + 6, PLAYER_X, '请键入对应数字：', 2)
     screen.refresh
     screen.getch
   end
 
   def build_search_menu
-    clear_to_bottom(screen, PLAYER_CONTENT_Y,SCREEN_HEIGHT)
-    putstr(screen, PLAYER_CONTENT_Y, PLAYER_X, '选择搜索类型：', Curses.color_pair(1))
-    putstr(screen, PLAYER_CONTENT_Y + 1, PLAYER_X, '1 - 歌曲')
-    putstr(screen, PLAYER_CONTENT_Y + 2, PLAYER_X, '2 - 艺术家')
-    putstr(screen, PLAYER_CONTENT_Y + 3, PLAYER_X, '3 - 专辑')
-    putstr(screen, PLAYER_CONTENT_Y + 4, PLAYER_X, '4 - 精选歌单')
-    putstr(screen, PLAYER_CONTENT_Y + 6, PLAYER_X, '请键入对应数字：', Curses.color_pair(2))
+    screen.clear(screen, PLAYER_CONTENT_Y,SCREEN_HEIGHT)
+    screen.line(PLAYER_CONTENT_Y, PLAYER_X, '选择搜索类型：', 1)
+    screen.line(PLAYER_CONTENT_Y + 1, PLAYER_X, '1 - 歌曲')
+    screen.line(PLAYER_CONTENT_Y + 2, PLAYER_X, '2 - 艺术家')
+    screen.line(PLAYER_CONTENT_Y + 3, PLAYER_X, '3 - 专辑')
+    screen.line(PLAYER_CONTENT_Y + 4, PLAYER_X, '4 - 精选歌单')
+    screen.line(PLAYER_CONTENT_Y + 6, PLAYER_X, '请键入对应数字：', 2)
     screen.refresh
     screen.getch
   end
@@ -264,18 +217,18 @@ class Ui
   end
 
   def build_login_error
-    clear_to_bottom(screen, PLAYER_CONTENT_Y,SCREEN_HEIGHT)
-    putstr(screen, PLAYER_CONTENT_Y + 1, PLAYER_X, 'oh，出现错误 Orz', Curses.color_pair(2))
-    putstr(screen, PLAYER_CONTENT_Y + 2, PLAYER_X, '1 - 再试一次')
-    putstr(screen, PLAYER_CONTENT_Y + 3, PLAYER_X, '2 - 稍后再试')
-    putstr(screen, PLAYER_CONTENT_Y + 5, PLAYER_X, '请键入对应数字：', Curses.color_pair(2))
+    screen.clear(screen, PLAYER_CONTENT_Y,SCREEN_HEIGHT)
+    screen.line(PLAYER_CONTENT_Y + 1, PLAYER_X, 'oh，出现错误 Orz', 2)
+    screen.line(PLAYER_CONTENT_Y + 2, PLAYER_X, '1 - 再试一次')
+    screen.line(PLAYER_CONTENT_Y + 3, PLAYER_X, '2 - 稍后再试')
+    screen.line(PLAYER_CONTENT_Y + 5, PLAYER_X, '请键入对应数字：', 2)
     screen.refresh
     screen.getch
   end
 
   def get_param(prompt_str)
-    clear_to_bottom(screen, PLAYER_CONTENT_Y,SCREEN_HEIGHT)
-    putstr(screen, PLAYER_CONTENT_Y, PLAYER_X, prompt_str, Curses.color_pair(1))
+    screen.clear(screen, PLAYER_CONTENT_Y,SCREEN_HEIGHT)
+    screen.line(PLAYER_CONTENT_Y, PLAYER_X, prompt_str, 1)
     screen.setpos(PLAYER_CONTENT_Y + 2, PLAYER_X)
     params = screen.getstr
     if params.strip.nil?
@@ -287,25 +240,27 @@ class Ui
 
   private
 
-  def putstr(screen, y, x, string, color = Curses.color_pair(0))
-    screen.setpos(y, x)
-    screen.clrtoeol
-    screen.attrset(color)
-    screen.addstr(string)
-  end
-
-  def clear_to_bottom(screen, top, bottom)
-    (top..bottom).each do |i|
-      screen.setpos(i, 0)
-      screen.clrtoeol
-    end
-  end
-
-  def pretty_format(info, start, length)
+  def pretty(info, start, length)
     if info.size >= length
       "#{info[start, length]}..."
     else
       info
+    end
+  end
+
+  def highlight_or_not(i, index, offset, info)
+    if i == index
+      highlight = "♩ #{info}"
+      screen.line(i-offset+PLAYER_CONTENT_Y, PLAYER_POINTER_X, highlight, 2)
+    else
+      screen.line(i-offset+PLAYER_CONTENT_Y, PLAYER_X, info)
+    end
+  end
+
+  def show(entries, index, offset, datalist)
+    entries.each do |i|
+      info = yield(i, datalist) # Get custom info.
+      highlight_or_not(i, index, offset, info)
     end
   end
 end

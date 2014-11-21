@@ -46,7 +46,6 @@ class Menu
     @collection = []
     @playlists = []
     @account = {}
-
     @carousel = ->(left, right, x){x < left ? right : (x > right ? left : x)}
 
     read_data
@@ -54,7 +53,7 @@ class Menu
 
   def start
     ui.build_menu(@datatype, @title, @datalist, @offset, @index, @step)
-    @stack.push([@datatype, @title, @datalist, @offset, @index, @step])
+    @stack.push [@datatype, @title, @datalist, @offset, @index, @step]
 
     loop do
       datatype = @datatype
@@ -102,7 +101,7 @@ class Menu
           @present_songs = [datatype, title, datalist, offset, index]
         else
           ui.build_loading
-          dispatch_enter(idx)
+          dispatch_enter idx
           @index = 0
           @offset = 0
         end
@@ -135,7 +134,7 @@ class Menu
       # Load present playlist.
       when 'p'
         next if @present_songs.empty?
-        @stack.push([datatype, title, datalist, offset, index])
+        @stack.push [datatype, title, datalist, offset, index]
         @datatype, @title, @datalist, @offset, @index = @present_songs[0], @present_songs[1], @present_songs[2], @present_songs[3], @present_songs[4]
 
       # Star a song, a playlist or an album.
@@ -153,7 +152,7 @@ class Menu
 
       # Load favorite playlists.
       when 't'
-        @stack.push([datatype, title, datalist, offset, index])
+        @stack.push [datatype, title, datalist, offset, index]
         @datatype = 'playlists'
         @title = '网易云音乐 > 收藏精选歌单'
         @datalist = @playlists
@@ -162,7 +161,7 @@ class Menu
 
       # Load favorite songs.
       when 'c'
-        @stack.push([datatype, title, datalist, offset, index])
+        @stack.push [datatype, title, datalist, offset, index]
         @datatype = 'songs'
         @title = '网易云音乐 > 收藏歌曲列表'
         @datalist = @collection
@@ -171,7 +170,7 @@ class Menu
 
       # Load favorite albums.
       when 'a'
-        @stack.push([datatype, title, datalist, offset, index])
+        @stack.push [datatype, title, datalist, offset, index]
         @datatype = 'albums'
         @title = '网易云音乐 > 收藏专辑'
         @datalist = @albums
@@ -180,7 +179,7 @@ class Menu
 
       # Load favorite dj channels.
       when 'z'
-        @stack.push([datatype, title, datalist, offset, index])
+        @stack.push [datatype, title, datalist, offset, index]
         @datatype = 'djchannels'
         @title = '网易云音乐 > 收藏 DJ 节目'
         @datalist = @djs
@@ -189,15 +188,14 @@ class Menu
 
       # Remove an entry from the present list.
       when 'r'
-        if (datatype != 'main') && !datalist.empty?
-          @datalist.delete_at(idx)
-          @index = @carousel[@offset, [datalist.size, offset+step].min - 1, idx]
-        end
+        next if datatype == 'main' || datalist.empty?
+        @datalist.delete_at idx
+        @index = @carousel[@offset, [datalist.size, offset+step].min - 1, idx]
 
       # Main menu
       when 'm'
         next if datatype == 'main'
-        @stack.push([datatype, title, datalist, offset, index])
+        @stack.push [datatype, title, datalist, offset, index]
         @datatype, @title, @datalist = @stack[0][0], @stack[0][1], @stack[0][2]
         @offset = 0
         @index = 0
@@ -218,7 +216,7 @@ class Menu
     datalist = @datalist
     offset = @offset
     index = @index
-    @stack.push([datatype, title, datalist, offset, index])
+    @stack.push [datatype, title, datalist, offset, index]
 
     case datatype
     when 'main'
@@ -226,24 +224,24 @@ class Menu
 
     # Hot songs to which a artist belongs.
     when 'artists'
-      artist_id = datalist[idx]['artist_id']
-      songs = netease.artists(artist_id)
+      id = datalist[idx]['artist_id']
+      songs = netease.artists id
       @datatype = 'songs'
       @datalist = netease.dig_info(songs, 'songs')
       @title += " > #{datalist[idx]['aritsts_name']}"
 
     # All songs to which an album belongs.
     when 'albums'
-      album_id = datalist[idx]['album_id']
-      songs = netease.album(album_id)
+      id = datalist[idx]['album_id']
+      songs = netease.album id
       @datatype = 'songs'
       @datalist = netease.dig_info(songs, 'songs')
       @title += " > #{datalist[idx]['albums_name']}"
 
     # All songs to which a playlist belongs.
     when 'playlists'
-      playlist_id = datalist[idx]['playlist_id']
-      songs = netease.playlist_detail(playlist_id)
+      id = datalist[idx]['playlist_id']
+      songs = netease.playlist_detail id
       @datatype = 'songs'
       @datalist = netease.dig_info(songs, 'songs')
       @title += " > #{datalist[idx]['playlists_name']}"
@@ -286,7 +284,7 @@ class Menu
       check_user_id
 
       # Fetch this user's all playlists while he logs in successfully.
-      my_playlist = netease.user_playlists(@userid)
+      my_playlist = netease.user_playlists @userid
       @datalist = netease.dig_info(my_playlist, 'playlists')
       @datatype = 'playlists'
       @title += " > #{@username} 的歌单"
@@ -320,13 +318,12 @@ class Menu
     x = ui.build_favorite_menu
 
     if (1..4).include? x.to_i
-      @stack.push([@datatype, @title, @datalist, @offset, @index])
+      @stack.push [@datatype, @title, @datalist, @offset, @index]
       @index = 0
       @offset = 0
     end
 
     case x
-
     when '1'
       @datatype = 'songs'
       @datalist = @collection
@@ -354,31 +351,30 @@ class Menu
     x = ui.build_search_menu
 
     if (1..4).include? x.to_i
-      @stack.push([@datatype, @title, @datalist, @offset, @index])
+      @stack.push [@datatype, @title, @datalist, @offset, @index]
       @index = 0
       @offset = 0
     end
 
     case x
-
     when '1'
       @datatype = 'songs'
-      @datalist = ui.build_search('songs')
+      @datalist = ui.build_search @datatype
       @title = '歌曲搜索列表'
 
     when '2'
       @datatype = 'artists'
-      @datalist = ui.build_search('artists')
+      @datalist = ui.build_search @datatype
       @title = '艺术家搜索列表'
 
     when '3'
       @datatype = 'albums'
-      @datalist = ui.build_search('albums')
+      @datalist = ui.build_search @datatype
       @title = '专辑搜索列表'
 
     when '4'
       @datatype = 'playlists'
-      @datalist = ui.build_search('playlists')
+      @datalist = ui.build_search @datatype
       @title = '精选歌单搜索列表'
     end
   end
