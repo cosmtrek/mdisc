@@ -21,7 +21,7 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency 'bundler', '~> 1.7'
   spec.add_development_dependency 'rake', '~> 10.0'
-  spec.add_runtime_dependency 'curses', '~>1.0.1'
-  spec.add_runtime_dependency 'open4', '~>1.3.4'
-  spec.add_runtime_dependency 'unirest', '~>1.1.2'
+  spec.add_dependency 'curses', '~>1.0.1'
+  spec.add_dependency 'open4', '~>1.3.4'
+  spec.add_dependency 'unirest', '~>1.1.2'
 end

@@ -40,6 +40,10 @@ class Screen
     @draw.getch
   end
 
+  def getstr
+    @draw.getstr
+  end
+
   def setpos(*args)
     @draw.setpos *args
   end

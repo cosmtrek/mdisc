@@ -34,11 +34,11 @@ class Ui
   SCREEN_TOP           = 0
   SCREEN_LEFT          = 0
 
-  PLAYER_X             = 5
+  PLAYER_X             = 4
   PLAYER_TITLE_Y       = 4
   PLAYER_STATUS_Y      = 5
   PLAYER_CONTENT_Y     = 7
-  PLAYER_INFO_Y        = 19
+  PLAYER_INFO_Y        = 17
 
   PLAYER_NOTE_X        = PLAYER_X - 2
   PLAYER_POINTER_X     = PLAYER_X - 3
@@ -55,8 +55,8 @@ class Ui
       screen.line(PLAYER_STATUS_Y, PLAYER_NOTE_X, '▶', 3)
     end
 
-    sn = pretty(song_name, 0, 32)
-    at = pretty(artist, 0, 28)
+    sn = pretty(song_name, 0, 28)
+    at = pretty(artist, 0, 24)
     info = "#{sn} - #{at}"
     screen.line(PLAYER_STATUS_Y, PLAYER_X, info, 4)
     screen.refresh
@@ -69,7 +69,7 @@ class Ui
   end
 
   def build_menu(datatype, title, datalist, offset, index, step)
-    title = pretty(title, 0, 52)
+    title = pretty(title, 0, 50)
 
     screen.clear(PLAYER_CONTENT_Y, SCREEN_HEIGHT)
     screen.line(PLAYER_TITLE_Y, PLAYER_X, title, 1)
@@ -89,34 +89,34 @@ class Ui
 
       when 'songs'
         show(entries, index, offset, datalist) do |i, datalist|
-          sn = pretty(datalist[i]['song_name'], 0, 32)
-          at = pretty(datalist[i]['artist'], 0, 28)
+          sn = pretty(datalist[i]['song_name'], 0, 28)
+          at = pretty(datalist[i]['artist'], 0, 24)
           "#{i}. #{sn} - #{at}"
         end
 
       when 'artists'
         show(entries, index, offset, datalist) do |i, datalist|
-          an = pretty(datalist[i]['artists_name'], 0, 32)
+          an = pretty(datalist[i]['artists_name'], 0, 28)
           "#{i}. #{an}"
         end
 
       when 'albums'
         show(entries, index, offset, datalist) do |i, datalist|
-          al = pretty(datalist[i]['albums_name'], 0, 32)
-          an = pretty(datalist[i]['artists_name'], 0, 28)
+          al = pretty(datalist[i]['albums_name'], 0, 28)
+          an = pretty(datalist[i]['artists_name'], 0, 24)
           "#{i}. #{al} - #{an}"
         end
 
       when 'playlists'
         show(entries, index, offset, datalist) do |i, datalist|
-          pn = pretty(datalist[i]['playlists_name'], 0, 32);
-          cn = pretty(datalist[i]['creator_name'], 0, 28);
+          pn = pretty(datalist[i]['playlists_name'], 0, 28);
+          cn = pretty(datalist[i]['creator_name'], 0, 24);
           "#{i}. #{pn} - #{cn}"
         end
 
       when 'djchannels'
         show(entries, index, offset, datalist) do |i, datalist|
-          sn = pretty(datalist[i][0]['song_name'], 0, 32)
+          sn = pretty(datalist[i][0]['song_name'], 0, 28)
           "#{i}. #{sn}"
         end
 
@@ -179,7 +179,7 @@ class Ui
   end
 
   def build_favorite_menu
-    screen.clear(screen, PLAYER_CONTENT_Y,SCREEN_HEIGHT)
+    screen.clear(PLAYER_CONTENT_Y, SCREEN_HEIGHT)
     screen.line(PLAYER_CONTENT_Y, PLAYER_X, '选择收藏条目类型：', 1)
     screen.line(PLAYER_CONTENT_Y + 1, PLAYER_X, '1 - 歌曲')
     screen.line(PLAYER_CONTENT_Y + 2, PLAYER_X, '2 - 精选歌单')
@@ -191,7 +191,7 @@ class Ui
   end
 
   def build_search_menu
-    screen.clear(screen, PLAYER_CONTENT_Y,SCREEN_HEIGHT)
+    screen.clear(PLAYER_CONTENT_Y, SCREEN_HEIGHT)
     screen.line(PLAYER_CONTENT_Y, PLAYER_X, '选择搜索类型：', 1)
     screen.line(PLAYER_CONTENT_Y + 1, PLAYER_X, '1 - 歌曲')
     screen.line(PLAYER_CONTENT_Y + 2, PLAYER_X, '2 - 艺术家')
@@ -217,7 +217,7 @@ class Ui
   end
 
   def build_login_error
-    screen.clear(screen, PLAYER_CONTENT_Y,SCREEN_HEIGHT)
+    screen.clear(PLAYER_CONTENT_Y, SCREEN_HEIGHT)
     screen.line(PLAYER_CONTENT_Y + 1, PLAYER_X, 'oh，出现错误 Orz', 2)
     screen.line(PLAYER_CONTENT_Y + 2, PLAYER_X, '1 - 再试一次')
     screen.line(PLAYER_CONTENT_Y + 3, PLAYER_X, '2 - 稍后再试')
@@ -227,7 +227,7 @@ class Ui
   end
 
   def get_param(prompt_str)
-    screen.clear(screen, PLAYER_CONTENT_Y,SCREEN_HEIGHT)
+    screen.clear(PLAYER_CONTENT_Y, SCREEN_HEIGHT)
     screen.line(PLAYER_CONTENT_Y, PLAYER_X, prompt_str, 1)
     screen.setpos(PLAYER_CONTENT_Y + 2, PLAYER_X)
     params = screen.getstr
