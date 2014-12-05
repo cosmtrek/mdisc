@@ -27,7 +27,9 @@ class Player
     ui.build_playinfo(item['song_name'], item['artist'])
 
     @thread = Thread.new do
-      @mp3id, stdin, stdout, stderr = Open4::popen4('mpg123', item['mp3_url'])
+      # Add input option: --continue,
+      # play a song continuously in case the network becomes offline occasionally.
+      @mp3id, stdin, stdout, stderr = Open4::popen4('mpg123', '--continue', item['mp3_url'])
       Process::waitpid2 @mp3id
 
       if @playing_flag
