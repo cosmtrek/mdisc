@@ -1,5 +1,7 @@
 require 'open4'
 
+# FIXME: There is something wrong...
+
 class Player
   WAIT_TIME = 0.5
 

@@ -31,10 +31,8 @@ class Ui
 
   SCREEN_HEIGHT        = 40
   SCREEN_WIDTH         = 80
-  SCREEN_TOP           = 0
-  SCREEN_LEFT          = 0
 
-  PLAYER_X             = 4
+  PLAYER_X             = 6
   PLAYER_TITLE_Y       = 4
   PLAYER_STATUS_Y      = 5
   PLAYER_CONTENT_Y     = 7
@@ -50,9 +48,9 @@ class Ui
 
   def build_playinfo(song_name, artist, pause = false)
     if pause
-      screen.line(PLAYER_STATUS_Y, PLAYER_NOTE_X, '■', 3)
+      screen.line(PLAYER_STATUS_Y, PLAYER_NOTE_X, 'S', 3)
     else
-      screen.line(PLAYER_STATUS_Y, PLAYER_NOTE_X, '▶', 3)
+      screen.line(PLAYER_STATUS_Y, PLAYER_NOTE_X, 'P', 3)
     end
 
     sn = pretty(song_name, 0, 28)
@@ -82,47 +80,47 @@ class Ui
       case datatype
       when 'main'
         show(entries, index, offset, datalist) do |i, datalist|
-          "#{i}. #{datalist[i]}"
+          "#{i} #{datalist[i]}"
         end
 
-        screen.line(PLAYER_INFO_Y, PLAYER_X, 'Crafted with ❤ by cosmtrek', 3)
+        screen.line(PLAYER_INFO_Y, PLAYER_X, 'Crafted with <3 by cosmtrek', 3)
 
       when 'songs'
         show(entries, index, offset, datalist) do |i, datalist|
           sn = pretty(datalist[i]['song_name'], 0, 28)
           at = pretty(datalist[i]['artist'], 0, 24)
-          "#{i}. #{sn} - #{at}"
+          "#{i} #{sn} - #{at}"
         end
 
       when 'artists'
         show(entries, index, offset, datalist) do |i, datalist|
           an = pretty(datalist[i]['artists_name'], 0, 28)
-          "#{i}. #{an}"
+          "#{i} #{an}"
         end
 
       when 'albums'
         show(entries, index, offset, datalist) do |i, datalist|
           al = pretty(datalist[i]['albums_name'], 0, 28)
           an = pretty(datalist[i]['artists_name'], 0, 24)
-          "#{i}. #{al} - #{an}"
+          "#{i} #{al} - #{an}"
         end
 
       when 'playlists'
         show(entries, index, offset, datalist) do |i, datalist|
           pn = pretty(datalist[i]['playlists_name'], 0, 28);
           cn = pretty(datalist[i]['creator_name'], 0, 24);
-          "#{i}. #{pn} - #{cn}"
+          "#{i} #{pn}"
         end
 
       when 'djchannels'
         show(entries, index, offset, datalist) do |i, datalist|
           sn = pretty(datalist[i][0]['song_name'], 0, 28)
-          "#{i}. #{sn}"
+          "#{i} #{sn}"
         end
 
       when 'help'
         entries.each do |i|
-          info = "#{i}. #{datalist[i][0]} #{datalist[i][1]} #{datalist[i][2]}"
+          info = "#{i} #{datalist[i][0]} #{datalist[i][1]} #{datalist[i][2]}"
           screen.line(i-offset+PLAYER_CONTENT_Y, PLAYER_X, info)
         end
       end
@@ -250,7 +248,7 @@ class Ui
 
   def highlight_or_not(i, index, offset, info)
     if i == index
-      highlight = "♩ #{info}"
+      highlight = "=> #{info}"
       screen.line(i-offset+PLAYER_CONTENT_Y, PLAYER_POINTER_X, highlight, 2)
     else
       screen.line(i-offset+PLAYER_CONTENT_Y, PLAYER_X, info)

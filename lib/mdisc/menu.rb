@@ -39,7 +39,7 @@ class Menu
     @offset = 0
     @index = 0
     @present_songs = []
-    @step = 20
+    @step = 25
     @stack = []
     @userid = nil
     @username = nil
