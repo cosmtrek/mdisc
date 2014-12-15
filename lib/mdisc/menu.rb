@@ -47,11 +47,12 @@ class Menu
     @playlists = []
     @account = {}
     @carousel = ->(left, right, x){x < left ? right : (x > right ? left : x)}
-
-    read_data
   end
 
   def start
+    check_player
+    read_data
+
     ui.build_menu(@datatype, @title, @datalist, @offset, @index, @step)
     @stack.push [@datatype, @title, @datalist, @offset, @index, @step]
 
@@ -380,6 +381,12 @@ class Menu
   end
 
   private
+
+  def check_player
+    if !system('which mpg123 > /dev/null 2>&1')
+      raise '!!!Please install `mpg123` before using Mdisc!!!'
+    end
+  end
 
   def check_dir
     dir = "#{ENV['HOME']}/.mdisc"

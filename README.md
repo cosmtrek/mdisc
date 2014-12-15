@@ -1,6 +1,6 @@
 # Mdisc
 
-![Mdisc](http://cl.ly/Y6Qz/mdisc.png)
+![Mdisc](http://cl.ly/Yy0o/mdisc.png)
 
 Mdisc, built with Ruby 2.1, is a command line music player that wirelessly plugs in Netease music(http://music.163.com).
 
